@@ -1,0 +1,98 @@
+<script type="text/javascript">
+
+  function populateReportModels() {
+    <% @reports.each do |report| %>
+      var model = {
+        category_id: "<%= report.category_id %>",
+        category_name: "<%= report.category_name %>",
+        amount: "<%= report.amount %>",
+        budget_amount: "<%= report.budget_amount %>"
+      };
+      reportModels.push(model);
+    <% end %>
+  }
+
+  function goToTodayView() {
+    window.location.href = "/expenses/today";
+  }
+
+  populateReportModels();
+
+  $(document).ready(function() {
+
+  });
+
+</script>
+
+<div ng-controller="MonthlyReportCtrl" class="daily-main center">
+
+  <div class="expense-header">
+    <span class="expense-header">My Monthly Expenses</span>
+
+    <select id="reportDate">
+      <% @report_months.each do |m| %>
+        <% if @report_date == m %>
+          <option selected="selected"><%= m %></option>
+        <% else %>
+          <option><%= m %></option>
+        <% end %>
+      <% end %>
+    </select>
+  </div>
+
+  <div class="daily-expense-total">
+    <span>Total:</span>
+    <span>{{total | currency}}</span>
+    <a class="link-to-today expense-link" href="#" onclick="goToTodayView()">View Daily Expenses >></a>
+  </div>
+
+  <table class="monthly" border="0" width="100%">
+    <col style="width:30%">
+    <col style="width:20%">
+    <col style="width:20%">
+    <col style="width:30%">
+
+    <thead>
+      <tr>
+        <th class="monthly">Category</th>
+        <th class="monthly">Amount</th>
+        <th class="monthly">Budget</th>
+        <th class="monthly">Unused Budget</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr class="monthly"
+          ng-repeat="report in reports">
+        <td class="monthly">
+          <span>{{report.category_name}}</span>
+        </td>
+        <td class="monthly right">
+          <span>{{report.amount}}</span>
+        </td>
+        <td class="monthly right">
+          <input class="budget" ng-model="report.budget_amount">
+        </td>
+        <td class="monthly right">
+          <span>{{report.budget_amount - report.amount}}</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td></td>
+        <td class="update-budget right">
+          <button ng-click="updateAllBudgets()">Update</button>
+        </td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script type="text/javascript">
+    $("#reportDate")
+      .change(function() {
+        window.location.href = "/expenses/monthly/" + $(this).val();
+      });
+  </script>
+</div>

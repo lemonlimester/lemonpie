@@ -1,0 +1,51 @@
+var reportModels = [];
+
+function createAllBudgetData(theReportModels) {
+    var budgetsData = {};
+    var i;
+    for (i in theReportModels) {
+        budgetsData[i] = {
+            category_id: theReportModels[i].category_id,
+            amount: theReportModels[i].budget_amount
+        };
+    }
+    var data = { budgets: budgetsData };
+    return data;
+}
+
+expenseApp.controller("MonthlyReportCtrl", function ($scope, $http) {
+    $scope.reports = reportModels;
+
+    $scope.total = 0.00;
+    $scope.updateTotalExpenses = function () {
+        var totalExpenses = calculateTotalExpenses(reportModels);
+        $scope.total = totalExpenses.toFixed(2);
+    };
+    $scope.updateTotalExpenses();
+
+    $scope.updateBudget = function(category_id, budget_amount) {
+        $http({
+            method: 'POST',
+            url: '/budgets',
+            data: { budget: { category_id: category_id, amount: budget_amount } },
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function(data, status, headers, config) {
+        });
+    }
+
+    $scope.updateAllBudgets = function () {
+        $http({
+            method: 'POST',
+            url: '/budgets/multi',
+            data: createAllBudgetData($scope.reports),
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function(data, status, headers, config) {
+        });
+    }
+});

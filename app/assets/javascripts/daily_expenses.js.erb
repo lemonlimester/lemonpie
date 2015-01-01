@@ -1,0 +1,209 @@
+var expenseDate = "";
+
+var expenseModel = [];
+
+var categoryModel = [];
+
+var expenseApp = angular.module("expenseApp", []);
+
+expenseApp.run(function () {
+
+});
+
+function addExpenseDataToModel (data) {
+    var model = convertExpenseDataToModel(data);
+    model.isEditMode = false;
+    initEditBuffer(model);
+    expenseModel.push(model);
+}
+
+function addCategoryDataToModel (data) {
+    var model = { value: data.id, label: data.name };
+    categoryModel.push(model);
+}
+
+function copyEditBufferToModel (model) {
+    model.date = model.editBuffer.date;
+    model.category = model.editBuffer.category;
+    model.description = model.editBuffer.description;
+    model.amount = model.editBuffer.amount;
+}
+
+function initEditBuffer(model) {
+    model.editBuffer = {};
+    model.editBuffer.date = model.date;
+    model.editBuffer.category = model.category;
+    model.editBuffer.description = model.description;
+    model.editBuffer.amount = model.amount;
+}
+
+function insertNewCategoryDataToModel (data) {
+    var model = { value: data.id, label: data.name };
+    var index = categoryModel.length - 1;
+    categoryModel.splice(index, 0, model);
+}
+
+function findCategoryElement (categoryId, categoryArray) {
+    var category;
+    for (var i = 0; i < categoryArray.length; i++) {
+        if (categoryArray[i].value.toString() == categoryId) {
+            category = categoryArray[i];
+            break;
+        }
+    }
+
+    return category;
+}
+
+function createNewExpenseModel () {
+    var newExpenseModel = {
+        date: expenseDate,
+        category: "",
+        description: "",
+        amount: ""
+    };
+    return newExpenseModel;
+};
+
+/* convert the ExpenseModel to the http data that is to be sent over to the server */
+function convertExpenseModelToData (model) {
+    var data = { expense: {
+        date: model.date,
+        category_id: model.category.value,
+        description: model.description,
+        amount: model.amount
+    }};
+
+    return data;
+};
+
+function convertExpenseDataToModel (data) {
+    var category = findCategoryElement(data["category_id"], categoryModel);
+    var expenseModel = {
+        id: data["id"],
+        date: data["date"],
+        category: category,
+        description: data["description"],
+        amount: data["amount"] };
+
+    return expenseModel;
+};
+
+/* DOES NOT give the actual amount because
+   the conversion to float seems to have some rounding */
+function calculateTotalExpenses (theExpensesModel) {
+    var sum = 0;
+    var i;
+    for (i in theExpensesModel) {
+        sum += parseFloat(theExpensesModel[i].amount);
+    }
+    return sum;
+}
+
+expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
+    $scope.expenses = expenseModel;
+
+    $scope.categories = categoryModel;
+
+    $scope.total = 0.00;
+
+    $scope.updateTotalExpenses = function () {
+        var totalExpenses = calculateTotalExpenses(expenseModel);
+        $scope.total = totalExpenses.toFixed(2);
+    };
+    $scope.updateTotalExpenses();
+
+    var newExpenseModel = createNewExpenseModel();
+    newExpenseModel.category = $scope.categories[0];
+    $scope.newExpense = newExpenseModel;
+
+    $scope.startEditMode = function (expense) {
+        if (expense.isEditMode == false) {
+            expense.isEditMode = true;
+        }
+    };
+
+    $scope.endEditMode = function (expense) {
+        if (expense.isEditMode == true) {
+            expense.isEditMode = false;
+        }
+    };
+
+    $scope.isInEditMode = function (expense) {
+        return expense.isEditMode;
+    };
+
+    $scope.addNewExpense = function () {
+        $http({
+            method: 'POST',
+            url: '/expenses',
+            data: convertExpenseModelToData($scope.newExpense),
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function(data, status, headers, config) {
+            $scope.newExpense = createNewExpenseModel();
+            addExpenseDataToModel(data);
+            $scope.updateTotalExpenses();
+        });
+    };
+
+    $scope.updateExpense = function (expense) {
+        $http({
+            method: 'PATCH',
+            url: '/expenses/' + expense.id,
+            data: convertExpenseModelToData(expense.editBuffer),
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function (data, status, headers, config) {
+            copyEditBufferToModel(expense);
+            $scope.endEditMode(expense);
+            $scope.updateTotalExpenses();
+        });
+    };
+
+    $scope.cancelUpdateExpense = function (expense) {
+        initEditBuffer(expense);
+        $scope.endEditMode(expense);
+    }
+
+    $scope.deleteExpense = function (expense) {
+        $http({
+            method: 'DELETE',
+            url: '/expenses/' + expense.id,
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function (data, status, headers, config) {
+            $scope.expenses.splice($scope.expenses.indexOf(expense), 1);
+            $scope.updateTotalExpenses();
+        });
+    };
+
+    $scope.displayCreateNewCategoryModal = function (selectedCategory) {
+        var lastIndex = $scope.categories.length - 1;
+        if ($scope.categories[lastIndex].label == selectedCategory.label) {
+            $('#myModal').modal();
+        }
+    }
+
+    $scope.createNewCategory = function (categoryName) {
+        $http({
+            method: 'POST',
+            url: '/categories',
+            data: {category: {name: categoryName}},
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            }})
+        .success(function(data, status, headers, config) {
+            insertNewCategoryDataToModel(data);
+            $scope.newCategoryName = "";
+        });
+    }
+
+});

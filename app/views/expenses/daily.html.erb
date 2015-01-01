@@ -1,0 +1,178 @@
+<script type="text/javascript">
+  function addDatePicker() {
+    $('.datepicker').datepicker({ dateFormat: "yy-mm-dd" }).val();
+  }
+
+  function populateCategoryModel() {
+    <% Category.all.each do |category| %>
+      addCategoryDataToModel({ id: <%= category.id %>, name: "<%= category.name %>" });
+    <% end %>
+  }
+
+  function populateExpenseModel() {
+    <% @expenses.each do |expense| %>
+      var data = {
+        id: <%= expense.id %>,
+        date: "<%= expense.date %>",
+        category_id: "<%= expense.category.id %>",
+        description: "<%= expense.description %>",
+        amount: "<%= expense.amount %>",
+      };
+      addExpenseDataToModel(data);
+    <% end %>
+  }
+
+  function goToMonthlyView(date) {
+    var dateObj = new Date(date);
+    var dateStr = dateObj.getFullYear() + "-" + (dateObj.getMonth() + 1) + "-01";
+    window.location.href = "/expenses/monthly/" + dateStr;
+  }
+
+  expenseDate = "<%= @filters[:date] %>";
+  populateCategoryModel();
+  populateExpenseModel();
+
+  $(document).ready(function() {
+    addDatePicker();
+  });
+
+</script>
+
+<div ng-controller="DailyExpenseCtrl" class="daily-main center">
+
+  <div class="expense-header">
+    <span class="expense-header">My Daily Expenses</span>
+    <input type="text" class="datepicker expense-date" id="dailyExpenseDate" value="<%= @filters[:date]%>">
+  </div>
+
+  <div class="daily-expense-total">
+    <span>Total:</span>
+    <span>{{total | currency}}</span>
+
+    <a class="link-to-monthly expense-link" href="#" onclick="goToMonthlyView(expenseDate)">View Monthly Expenses >></a>
+  </div>
+
+  <table class="daily" border="0" width="100%">
+    <col style="width:20%">
+    <col style="width:45%">
+    <col style="width:15%">
+    <col style="width:80px">
+
+    <thead>
+      <tr>
+        <th class="daily">Category</th>
+        <th class="daily">Description</th>
+        <th class="daily">Amount</th>
+        <th class="daily"></th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      <tr class="daily">
+        <td class="daily">
+          <select class="selectCategories"
+                  style="width:100%"
+                  ng-model="newExpense.category"
+                  ng-options="category as category.label for category in categories">
+        </td>
+        <td class="daily">
+          <input type="text"
+                  style="width:100%"
+                  ng-model="newExpense.description">
+        </td>
+        <td class="daily right">
+          <input type="text"
+                style="width:100%"
+                class="right"
+                ng-model="newExpense.amount">
+        </td>
+        <td class="button-placeholder">
+          <button type="button" class="btn btn-xs btn-default" aria-label="Add"
+                  ng-click="addNewExpense()">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+          </button>
+        </td>
+      </tr>
+
+      <tr class="daily"
+          ng-repeat="expense in expenses"
+          ng-click="startEditMode(expense)">
+        <td class="daily">
+          <span ng-hide="isInEditMode(expense)">{{expense.category.label}}</span>
+          <select style="width:100%"
+                  ng-model="expense.editBuffer.category"
+                  ng-options="category as category.label for category in categories"
+                  ng-show="isInEditMode(expense)"
+                  ng-change="displayCreateNewCategoryModal(expense.editBuffer.category)">
+        </td>
+        <td class="daily">
+          <span ng-hide="isInEditMode(expense)">{{expense.description}}</span>
+          <input style="width:100%"
+                ng-model="expense.editBuffer.description"
+                ng-show="isInEditMode(expense)">
+        </td>
+        <td class="daily right">
+          <span ng-hide="isInEditMode(expense)">{{expense.amount}}</span>
+          <input style="width:100%"
+                class="right"
+                ng-model="expense.editBuffer.amount"
+                ng-show="isInEditMode(expense)">
+        </td>
+        <td class="button-placeholder">
+          <div class="btn-group btn-group-xs">
+            <button type="button" class="btn btn-success" aria-label="Update"
+                    ng-click="updateExpense(expense)" ng-show="isInEditMode(expense)">
+              <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn-info" aria-label="Cancel"
+                    ng-click="cancelUpdateExpense(expense); $event.stopPropagation();"
+                    ng-show="isInEditMode(expense)">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn-danger" aria-label="Delete"
+                    ng-click="deleteExpense(expense)" ng-show="isInEditMode(expense)">
+              <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">New Category</h4>
+        </div>
+        <div class="modal-body">
+          <input ng-model="newCategoryName">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" ng-click="createNewCategory(newCategoryName)" data-dismiss="modal">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+</div>
+
+<script type="text/javascript">
+
+  addCategoryDataToModel({ id: 0, name: "Create new Category" });
+
+  $(".selectCategories")
+  .change(function () {
+    if ($(this).val() == (this.options.length - 1)) {
+      $('#myModal').modal();
+    }
+  });
+
+  $("#dailyExpenseDate")
+    .change(function() {
+      window.location.href = "/expenses/daily/" + $(this).val();
+    });
+</script>

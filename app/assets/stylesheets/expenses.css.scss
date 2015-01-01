@@ -1,0 +1,150 @@
+// Place all the styles related to the Expenses controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body.expense {
+  font-family: helvetica neue;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.right {
+  text-align: right;
+  padding-right: 4px;
+}
+
+div.daily-main {
+  background: transparent;
+  padding: 4px;
+  min-width: 600px;
+  width: 80%;
+}
+
+div.expense-header {
+  color: #151715;
+  padding-top: 10px;
+  padding-bottom: 4px;
+}
+
+span.expense-header {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.expense-date {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 1;
+  font-family: lucida handwriting;
+  font-size: 12px;
+  padding-left: 6px;
+  text-align: center;
+  width: 100px;
+}
+
+a.expense-link {
+  font-size: 12px;
+  color: #336600;
+  /*&:visited {
+    color: #666;
+  }*/
+  /*&:hover {
+    color: #fff;
+    background-color: #000;
+  }*/
+}
+
+a.link-to-monthly {
+  float: right;
+}
+
+div.daily-expense-total {
+  font-size: 16px;
+  color: #336600;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+table.daily {
+  table-layout: fixed;
+}
+
+th.daily {
+  font-size: 14px;
+  background-color: #A6CF7C;
+  color: #151715;
+  text-align: center;
+  padding-left: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+tr.daily:nth-child(even) {
+  background: #E6FFE6;
+}
+
+tr.daily:nth-child(odd) {
+  background: #FFFFFF;
+}
+
+td.daily {
+  color: #151715;
+  padding-left: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+td.button-placeholder {
+  background: transparent;
+}
+
+a.link-to-today {
+  float: right;
+}
+
+table.monthly {
+  table-layout: fixed;
+}
+
+th.monthly {
+  font-size: 14px;
+  background-color: #A6CF7C;
+  color: #151715;
+  text-align: center;
+  padding-left: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+tr.monthly {
+  background: #FFFFFF;
+}
+
+td.monthly {
+  color: #151715;
+  border-bottom: 1px solid #A3C2C2;
+  padding-left: 4px;
+  padding-top: 4px;
+  padding-bottom: 3px;
+}
+
+td.update-budget {
+  text-align: right;
+  padding-top: 6px;
+  padding-bottom: 2px;
+}
+
+input.budget {
+  border: 0;
+  background: #E6FFE6;
+  width: 100%;
+  text-align: right;
+  padding-right: 4px;
+}
+
