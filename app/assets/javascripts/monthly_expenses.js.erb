@@ -48,4 +48,28 @@ expenseApp.controller("MonthlyReportCtrl", function ($scope, $http) {
         .success(function(data, status, headers, config) {
         });
     }
+
+    $scope.isCalculatingForDonation = false;
+
+    $scope.donationAmount = 0.00;
+
+    $scope.toggleCalculateForDonation = function() {
+        $scope.isCalculatingForDonation = !$scope.isCalculatingForDonation;
+    }
+
+    $scope.updateDonationAmount = function (add, amount) {
+        var amountValue = parseFloat(amount);
+        if (add)
+        {
+            $scope.donationAmount += amountValue;
+        }
+        else
+        {
+            $scope.donationAmount -= amountValue;
+        }
+    }
+
+    $scope.openDonateModal = function() {
+        $('#donateModal').modal();
+    }
 });

@@ -38,7 +38,7 @@
 
 </script>
 
-<div ng-controller="DailyExpenseCtrl" class="daily-main center">
+<div ng-cloak ng-controller="DailyExpenseCtrl" class="daily-main center">
 
   <div class="expense-header">
     <span class="expense-header">My Daily Expenses</span>
@@ -49,7 +49,7 @@
     <span>Total:</span>
     <span>{{total | currency}}</span>
 
-    <a class="link-to-monthly expense-link" href="#" onclick="goToMonthlyView(expenseDate)">View Monthly Expenses >></a>
+    <a class="link-to-monthly expense-link" href="#" onclick="goToMonthlyView(expenseDate)">View monthly expenses >></a>
   </div>
 
   <table class="daily" border="0" width="100%">

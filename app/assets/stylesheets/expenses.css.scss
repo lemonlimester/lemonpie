@@ -104,6 +104,13 @@ td.button-placeholder {
   background: transparent;
 }
 
+div.monthly-main {
+  background: transparent;
+  padding: 4px;
+  min-width: 740px;
+  width: 80%;
+}
+
 a.link-to-today {
   float: right;
 }
@@ -134,7 +141,7 @@ td.monthly {
   padding-bottom: 3px;
 }
 
-td.update-budget {
+td.monthly-button-placeholder {
   text-align: right;
   padding-top: 6px;
   padding-bottom: 2px;

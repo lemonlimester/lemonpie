@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  #get '/expenses' => 'expenses#today'
+  get '/expenses' => 'expenses#today'
 
   get '/expenses/today' => 'expenses#today'
   get '/expenses/daily/:date' => 'expenses#daily'

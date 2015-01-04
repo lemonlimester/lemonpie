@@ -1,94 +1,29 @@
-<%= form_tag('/expenses/filter', method: :get) do -%>
-  <%= select_tag(:category_id,
-        options_for_select(Category.all.map { |category| [category.name, category.id] }.insert(0, ["All", ""] ),
-        @filters[:category_id].to_i)) %>
-  <input type="text" class="datepicker" name="date" value="<%= @filters[:date]%>">
-  <%= submit_tag 'Filter' %>
-<% end -%>
-<%= button_to "Reset", '/expenses', :class => "button", :method => :get%>
+<h1>Listing expenses</h1>
 
-<h1>My Expenses</h1>
-
-<div class="col-md-6">
-
-<p>Sub Total: <%= number_to_currency(@subtotal) %></p>
-
-<table class="table table-condensed table-hover">
+<table>
   <thead>
     <tr>
       <th>Date</th>
       <th>Category</th>
       <th>Description</th>
       <th>Amount</th>
+      <th colspan="3"></th>
     </tr>
   </thead>
 
   <tbody>
-    <tr>
-      <td>
-        <input type="text" class="datepicker" ng-model="newExpense.date">
-      </td>
-      <td>
-        <select class="selectCategories" ng-model="newExpense.category" ng-options="category as category.label for category in categories">
-      </td>
-      <td><input type="text" ng-model="newExpense.description"></td>
-      <td><input type="text" ng-model="newExpense.amount"></td>
-      <td><button ng-click="addNewExpense()">Add</button></td>
-    </tr>
-    <tr ng-repeat="expense in expenses" ng-click="startEditMode(expense)">
-      <td>
-        <span ng-hide="isInEditMode(expense)">{{expense.date}}</span>
-        <input class="datepicker" ng-model="expense.date" ng-show="isInEditMode(expense)">
-      </td>
-      <td>
-        <span ng-hide="isInEditMode(expense)">{{expense.category.label}}</span>
-        <select ng-model="expense.category" ng-options="category as category.label for category in categories" ng-show="isInEditMode(expense)">
-      </td>
-      <td>
-        <span ng-hide="isInEditMode(expense)">{{expense.description}}</span>
-        <input ng-model="expense.description" ng-show="isInEditMode(expense)">
-      </td>
-      <td>
-        <span ng-hide="isInEditMode(expense)">{{expense.amount}}</span>
-        <input ng-model="expense.amount" ng-show="isInEditMode(expense)">
-      </td>
-      <td>
-       <button ng-click="updateExpense(expense)" ng-show="isInEditMode(expense)">Update</button>
-       <button ng-click="endEditMode(expense); $event.stopPropagation();" ng-show="isInEditMode(expense)">Cancel</button>
-       <button ng-click="deleteExpense(expense)" ng-show="isInEditMode(expense)">Delete</button>
-      </td>
-    </tr>
+    <% @expenses.each do |expense| %>
+      <tr>
+        <td><%= expense.date %></td>
+        <td><%= expense.category.name %></td>
+        <td><%= expense.description %></td>
+        <td><%= expense.amount %></td>
+        <td><%= link_to 'Show', expense %></td>
+        <td><%= link_to 'Edit', edit_expense_path(expense) %></td>
+        <td><%= link_to 'Destroy', expense, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 
-</div>
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">New Category</h4>
-      </div>
-      <div class="modal-body">
-        <input ng-model="newCategoryName">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" ng-click="createNewCategory(newCategoryName)">Save changes</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-<script type="text/javascript">
-  //$(".selectCategories").append('<option value="3">Create New Category</option>');
-  addCategoryDataToModel({ id: 0, name: "Create new Category" });
-
-  $(".selectCategories")
-    .change(function () {
-      if ($(".selectCategories").val() == ($(".selectCategories option").length - 1)) {
-        $('#myModal').modal();
-      }
-  });
-</script>
+<%= link_to 'New Expense', new_expense_path %>

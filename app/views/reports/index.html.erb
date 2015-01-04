@@ -8,6 +8,19 @@
         amount: "<%= report.amount %>",
         budget_amount: "<%= report.budget_amount %>"
       };
+
+      /* calculate unused budget amount if budget for the category has been set */
+      <%
+      unused = 0.0
+      if !report.budget_amount.nil?
+        if (report.budget_amount >= report.amount)
+          unused = report.budget_amount - report.amount
+        end
+      end
+      %>
+      model.unused_budget_amount = "<%= unused %>";
+      model.isIncludedForDonation = false;
+
       reportModels.push(model);
     <% end %>
   }
@@ -24,7 +37,7 @@
 
 </script>
 
-<div ng-controller="MonthlyReportCtrl" class="daily-main center">
+<div ng-cloak ng-controller="MonthlyReportCtrl" class="monthly-main center">
 
   <div class="expense-header">
     <span class="expense-header">My Monthly Expenses</span>
@@ -43,14 +56,15 @@
   <div class="daily-expense-total">
     <span>Total:</span>
     <span>{{total | currency}}</span>
-    <a class="link-to-today expense-link" href="#" onclick="goToTodayView()">View Daily Expenses >></a>
+    <a class="link-to-today expense-link" href="#" onclick="goToTodayView()">View today's expenses >></a>
   </div>
 
   <table class="monthly" border="0" width="100%">
-    <col style="width:30%">
-    <col style="width:20%">
-    <col style="width:20%">
-    <col style="width:30%">
+    <col style="width:25%">
+    <col style="width:25%">
+    <col style="width:25%">
+    <col style="width:25%, min-width:130px">
+    <col style="width:60px">
 
     <thead>
       <tr>
@@ -58,6 +72,7 @@
         <th class="monthly">Amount</th>
         <th class="monthly">Budget</th>
         <th class="monthly">Unused Budget</th>
+        <th class="monthly"></th>
       </tr>
     </thead>
 
@@ -74,20 +89,67 @@
           <input class="budget" ng-model="report.budget_amount">
         </td>
         <td class="monthly right">
-          <span>{{report.budget_amount - report.amount}}</span>
+          <!-- <span>{{report.budget_amount - report.amount}}</span> -->
+          <span>{{report.unused_budget_amount}}</span>
+        </td>
+        <td class="monthly">
+          <input type="checkbox"
+                ng-show="isCalculatingForDonation"
+                ng-model="report.isIncludedForDonation"
+                ng-change="updateDonationAmount(report.isIncludedForDonation, report.unused_budget_amount)">
         </td>
       </tr>
 
       <tr>
         <td></td>
         <td></td>
-        <td class="update-budget right">
-          <button ng-click="updateAllBudgets()">Update</button>
+        <td class="monthly-button-placeholder right">
+          <button ng-click="updateAllBudgets()">
+            Update
+          </button>
         </td>
-        <td></td>
+        <td class="monthly-button-placeholder right">
+          <button ng-hide="isCalculatingForDonation"
+                  ng-click="toggleCalculateForDonation()">
+            Pledge donation
+          </button>
+          <span ng-show="isCalculatingForDonation">{{donationAmount | currency}}</span>
+        </td>
+        <td>
+          <div class="btn-group btn-group-xs">
+            <button type="button" class="btn btn-success" aria-label="Update"
+                    ng-show="isCalculatingForDonation"
+                    ng-click="openDonateModal()">
+              <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn-info" aria-label="Cancel"
+                    ng-show="isCalculatingForDonation"
+                    ng-click="toggleCalculateForDonation()">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>
+
+  <div class="modal fade" id="donateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">Make a Donation</h4>
+        </div>
+        <div class="modal-body">
+          <input ng-model="newCategoryName">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" ng-click="createNewCategory(newCategoryName)" data-dismiss="modal">Donate</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
   <script type="text/javascript">
     $("#reportDate")
