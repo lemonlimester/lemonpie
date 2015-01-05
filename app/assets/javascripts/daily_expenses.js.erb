@@ -71,7 +71,7 @@ function convertExpenseModelToData (model) {
         date: model.date,
         category_id: model.category.value,
         description: model.description,
-        amount: model.amount
+        amount: parseFloat(model.amount)
     }};
 
     return data;
@@ -114,7 +114,7 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
     $scope.updateTotalExpenses();
 
     var newExpenseModel = createNewExpenseModel();
-    newExpenseModel.category = $scope.categories[0];
+    // newExpenseModel.category = $scope.categories[0];
     $scope.newExpense = newExpenseModel;
 
     $scope.startEditMode = function (expense) {
@@ -131,6 +131,26 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
 
     $scope.isInEditMode = function (expense) {
         return expense.isEditMode;
+    };
+
+    $scope.canAddNewExpense = function () {
+        var category = findCategoryElement($scope.newExpense.category.value, categoryModel);
+        if (!category) {
+            return false;
+        }
+        if (category.value == 0) {
+            return false;
+        }
+
+        var expenseAmount = parseFloat($scope.newExpense.amount);
+        if (isNaN(expenseAmount)) {
+            return false;
+        }
+        if (expenseAmount <= 0) {
+            return false;
+        }
+
+        return true;
     };
 
     $scope.addNewExpense = function () {

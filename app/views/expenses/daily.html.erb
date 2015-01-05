@@ -75,6 +75,8 @@
                   style="width:100%"
                   ng-model="newExpense.category"
                   ng-options="category as category.label for category in categories">
+            <option value=""></option>
+          </select>
         </td>
         <td class="daily">
           <input type="text"
@@ -89,6 +91,7 @@
         </td>
         <td class="button-placeholder">
           <button type="button" class="btn btn-xs btn-default" aria-label="Add"
+                  ng-disabled="!canAddNewExpense()"
                   ng-click="addNewExpense()">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
           </button>
@@ -165,9 +168,10 @@
   addCategoryDataToModel({ id: 0, name: "Create new Category" });
 
   $(".selectCategories")
-  .change(function () {
-    if ($(this).val() == (this.options.length - 1)) {
+    .change(function () {
+    if (this.options.selectedIndex == (this.options.length - 1)) {
       $('#myModal').modal();
+      this.options.selectedIndex = 0;
     }
   });
 
