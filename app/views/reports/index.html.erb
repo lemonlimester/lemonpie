@@ -141,11 +141,17 @@
           <h4 class="modal-title">Make a Donation</h4>
         </div>
         <div class="modal-body">
-          <input ng-model="newCategoryName">
+          <input class="right" ng-model="donationAmount">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" ng-click="createNewCategory(newCategoryName)" data-dismiss="modal">Donate</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary"
+                  ng-click="openSgGives()"
+                  data-dismiss="modal">
+            Donate thru sggives
+          </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            Cancel
+          </button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

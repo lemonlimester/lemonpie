@@ -72,4 +72,10 @@ expenseApp.controller("MonthlyReportCtrl", function ($scope, $http) {
     $scope.openDonateModal = function() {
         $('#donateModal').modal();
     }
+
+    $scope.openSgGives = function () {
+        var strWindowFeatures = "location=yes,height=570,width=720,scrollbars=yes,status=yes";
+        var URL = "https://www.sggives.org/Public/Charity/SGGives_P_Charity_CharityHome.aspx";
+        var win = window.open(URL, "_blank", strWindowFeatures);
+    }
 });

@@ -107,6 +107,9 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
 
     $scope.total = 0.00;
 
+    /* expenseModel which is binded with the Create New Category modal */
+    $scope.expenseWithNewCategory = {};
+
     $scope.updateTotalExpenses = function () {
         var totalExpenses = calculateTotalExpenses(expenseModel);
         $scope.total = totalExpenses.toFixed(2);
@@ -133,8 +136,8 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
         return expense.isEditMode;
     };
 
-    $scope.canAddNewExpense = function () {
-        var category = findCategoryElement($scope.newExpense.category.value, categoryModel);
+    $scope.canCommitExpense = function (expense) {
+        var category = findCategoryElement(expense.category.value, categoryModel);
         if (!category) {
             return false;
         }
@@ -142,7 +145,7 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
             return false;
         }
 
-        var expenseAmount = parseFloat($scope.newExpense.amount);
+        var expenseAmount = parseFloat(expense.amount);
         if (isNaN(expenseAmount)) {
             return false;
         }
@@ -204,9 +207,11 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
         });
     };
 
-    $scope.displayCreateNewCategoryModal = function (selectedCategory) {
+    $scope.displayCreateNewCategoryModal = function (selectedCategory, expenseModel) {
         var lastIndex = $scope.categories.length - 1;
         if ($scope.categories[lastIndex].label == selectedCategory.label) {
+            $scope.expenseWithNewCategory = expenseModel;
+
             $('#myModal').modal();
         }
     }
@@ -222,8 +227,21 @@ expenseApp.controller("DailyExpenseCtrl", function ($scope, $http) {
             }})
         .success(function(data, status, headers, config) {
             insertNewCategoryDataToModel(data);
+
+            if ($scope.expenseWithNewCategory) {
+                var index = $scope.categories.length - 2;
+                $scope.expenseWithNewCategory.category = $scope.categories[index];
+
+                $scope.expenseWithNewCategory = {};
+            }
+
             $scope.newCategoryName = "";
         });
     }
 
+    $scope.cancelCreateNewCategory = function () {
+        if ($scope.expenseWithNewCategory) {
+            $scope.expenseWithNewCategory.category = {};
+        }
+    }
 });

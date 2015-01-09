@@ -4,9 +4,13 @@
   }
 
   function populateCategoryModel() {
+    // addCategoryDataToModel({ id: "", name: "" });
+
     <% Category.all.each do |category| %>
       addCategoryDataToModel({ id: <%= category.id %>, name: "<%= category.name %>" });
     <% end %>
+
+    addCategoryDataToModel({ id: 0, name: "Create new Category" });
   }
 
   function populateExpenseModel() {
@@ -71,11 +75,11 @@
 
       <tr class="daily">
         <td class="daily">
-          <select class="selectCategories"
-                  style="width:100%"
+          <select style="width:100%"
                   ng-model="newExpense.category"
-                  ng-options="category as category.label for category in categories">
-            <option value=""></option>
+                  ng-options="category as category.label for category in categories"
+                  ng-change="displayCreateNewCategoryModal(newExpense.category, newExpense)">
+            <!-- <option value=""></option> -->
           </select>
         </td>
         <td class="daily">
@@ -91,7 +95,7 @@
         </td>
         <td class="button-placeholder">
           <button type="button" class="btn btn-xs btn-default" aria-label="Add"
-                  ng-disabled="!canAddNewExpense()"
+                  ng-disabled="!canCommitExpense(newExpense)"
                   ng-click="addNewExpense()">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
           </button>
@@ -107,7 +111,7 @@
                   ng-model="expense.editBuffer.category"
                   ng-options="category as category.label for category in categories"
                   ng-show="isInEditMode(expense)"
-                  ng-change="displayCreateNewCategoryModal(expense.editBuffer.category)">
+                  ng-change="displayCreateNewCategoryModal(expense.editBuffer.category, expense.editBuffer)">
         </td>
         <td class="daily">
           <span ng-hide="isInEditMode(expense)">{{expense.description}}</span>
@@ -125,6 +129,7 @@
         <td class="button-placeholder">
           <div class="btn-group btn-group-xs">
             <button type="button" class="btn btn-success" aria-label="Update"
+                    ng-disabled="!canCommitExpense(expense.editBuffer)"
                     ng-click="updateExpense(expense)" ng-show="isInEditMode(expense)">
               <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
             </button>
@@ -154,8 +159,17 @@
           <input ng-model="newCategoryName">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" ng-click="createNewCategory(newCategoryName)" data-dismiss="modal">Add</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary"
+                  ng-click="createNewCategory(newCategoryName)"
+                  data-dismiss="modal">
+            Add
+          </button>
+          <button type="button"
+                  class="btn btn-default"
+                  ng-click="cancelCreateNewCategory()"
+                  data-dismiss="modal">
+            Cancel
+          </button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -165,15 +179,7 @@
 
 <script type="text/javascript">
 
-  addCategoryDataToModel({ id: 0, name: "Create new Category" });
-
-  $(".selectCategories")
-    .change(function () {
-    if (this.options.selectedIndex == (this.options.length - 1)) {
-      $('#myModal').modal();
-      this.options.selectedIndex = 0;
-    }
-  });
+  // addCategoryDataToModel({ id: 0, name: "Create new Category" });
 
   $("#dailyExpenseDate")
     .change(function() {
